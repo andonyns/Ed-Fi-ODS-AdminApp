@@ -1,4 +1,4 @@
-﻿# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: Apache-2.0
 # Licensed to the Ed-Fi Alliance under one or more agreements.
 # The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 # See the LICENSE and NOTICES files in the project root for more information.
@@ -60,7 +60,6 @@
             ApiStartupType = "SharedInstance"
             DatabaseEngine = "PostgreSql"
             BulkUploadHashCache = "/app/BulkUploadHashCache/"
-            EncryptionProtocol = "AES"
             EncryptionKey = "<Generated encryption key>"
             AdminDB = "host=db-admin;port=5432;username=username;password=password;database=EdFi_Admin;Application Name=EdFi.Ods.AdminApp;"
             SecurityDB = "host=db-admin;port=5432;username=username;password=password;database=EdFi_Security;Application Name=EdFi.Ods.AdminApp;"
@@ -350,7 +349,6 @@ function UpdateAppSettingsForDocker {
     $json.AppSettings.XsdFolder = $DockerEnvValues["XsdFolder"]
     $json.AppSettings.DatabaseEngine = $DockerEnvValues["DatabaseEngine"]
     $json.AppSettings.BulkUploadHashCache = $DockerEnvValues["BulkUploadHashCache"]
-    $json.AppSettings.EncryptionProtocol = $DockerEnvValues["EncryptionProtocol"]
 
     if ($null -eq $json.AppSettings.EncryptionKey) {
         $json.AppSettings | Add-Member -NotePropertyName EncryptionKey -NotePropertyValue $DockerEnvValues["EncryptionKey"]
