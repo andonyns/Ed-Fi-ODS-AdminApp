@@ -31,5 +31,7 @@ namespace EdFi.Ods.AdminApp.Management.Helpers
         public string EncryptionProtocol { get; set; }
 
         public string EncryptionKey { get; set; }
+
+        public string PathBase { get; set; }
     }
 }
