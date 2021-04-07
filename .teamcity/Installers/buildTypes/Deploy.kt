@@ -81,7 +81,7 @@ object Deploy : BuildType ({
             artifacts {
                 cleanDestination = true
                 artifactRules = """
-                    +:Ed-Fi-ODS-AdminApp\EdFi.Suite3.Installer.AdminApp\*pre*.nupkg =>
+                    +:Ed-Fi-ODS-AdminApp\%project.name%\*%version.preReleaseLabel%*.nupkg =>
                 """.trimIndent()
             }
         }
