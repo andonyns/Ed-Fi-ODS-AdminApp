@@ -10,7 +10,7 @@ param (
     $PackageDirectory,
 
     [string]
-    $AppCommonVersion = "2.0.0",
+    $AppCommonVersion = "2.0.0-pre0005",
 
     [string]
     $PackageSource = "https://pkgs.dev.azure.com/ed-fi-alliance/Ed-Fi-Alliance-OSS/_packaging/EdFi/nuget/v3/index.json"
