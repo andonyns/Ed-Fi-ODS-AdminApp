@@ -64,7 +64,10 @@ param(
     $ConfigParams = @{},
 
     [boolean]
-    $IncludeDateOnFolder = $true
+    $IncludeDateOnFolder = $true,
+
+    [boolean]
+    $IsZipFile = $true
 )
 
 $headers = @{Authorization = "Bearer $PersonalAccessToken"}
@@ -177,6 +180,12 @@ function UploadResultsFile {
 
     $uploadJobUrl = "$JiraURL/rest/zapi/latest/automation/upload/$JobId"
 
+
+    if($IsZipFile) {
+        Expand-Archive $ResultsFilePath
+    }
+
+
     $fileBytes = [System.IO.File]::ReadAllBytes($ResultsFilePath);
     $fileEnc = [System.Text.Encoding]::GetEncoding('UTF-8').GetString($fileBytes);
     $boundary = [System.Guid]::NewGuid().ToString();
@@ -241,6 +250,7 @@ function GetJobStatus {
 $versionId = ObtainAdminAppVersionId -AdminAppVersion $AdminAppVersion
 GetCycleId -VersionId $versionId
 $jobId = CreateAutomationJob -VersionId $versionId
+Write-Host "Created Zephyr run for version: $versionId, job: $jobId and parameters $parameters"
 UploadResultsFile -JobId $jobId
 ExecuteJob -JobId $jobId
 GetJobStatus -JobId $jobId
