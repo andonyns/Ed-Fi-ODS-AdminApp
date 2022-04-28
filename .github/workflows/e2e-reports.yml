@@ -16,3 +16,7 @@ jobs:
         name: Playwright Tests
         path: '*.xml'
         reporter: java-junit
+    - name: tbs
+      run: |
+        ls -R
+      shell: pwsh
