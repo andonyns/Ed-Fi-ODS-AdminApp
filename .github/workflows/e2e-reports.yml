@@ -27,8 +27,8 @@ jobs:
         name: Playwright Tests
         path: '*.xml'
         reporter: java-junit
-    - name: Expand archive
-      run: ${{ env.RESULTS_FILE }}
+    - name: Extract Artifact
+      run: Expand-Archive "${{ env.RESULTS_FILE }}.zip"
       shell: pwsh
     - name: Send report to Zephyr
       if: contains(github.ref, 'main')
