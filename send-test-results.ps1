@@ -64,10 +64,7 @@ param(
     $ConfigParams = @{},
 
     [boolean]
-    $IncludeDateOnFolder = $true,
-
-    [boolean]
-    $IsZipFile = $true
+    $IncludeDateOnFolder = $true
 )
 
 $headers = @{Authorization = "Bearer $PersonalAccessToken"}
@@ -180,12 +177,6 @@ function UploadResultsFile {
 
     $uploadJobUrl = "$JiraURL/rest/zapi/latest/automation/upload/$JobId"
 
-
-    if($IsZipFile) {
-        Expand-Archive $ResultsFilePath
-    }
-
-
     $fileBytes = [System.IO.File]::ReadAllBytes($ResultsFilePath);
     $fileEnc = [System.Text.Encoding]::GetEncoding('UTF-8').GetString($fileBytes);
     $boundary = [System.Guid]::NewGuid().ToString();
@@ -247,6 +238,7 @@ function GetJobStatus {
     Write-Host $response.Status
 }
 
+Write-Host $ResultsFilePath
 $versionId = ObtainAdminAppVersionId -AdminAppVersion $AdminAppVersion
 GetCycleId -VersionId $versionId
 $jobId = CreateAutomationJob -VersionId $versionId

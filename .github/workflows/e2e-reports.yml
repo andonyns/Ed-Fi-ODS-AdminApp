@@ -12,16 +12,13 @@ env:
   CYCLE_NAME: 'Automation Cycle'
   TASK_NAME: 'Playwright Automation Task'
   FOLDER_NAME: 'Playwright Automation Run'
-  RESULTS_FILE: './test-results.zip'
+  RESULTS_FILE: 'playwright-results'
 
 jobs:
   report:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # v3.0.2
-    - name: tbs
-      run: |
-        ls
     - name: Generate report
       uses: dorny/test-reporter@0d00bb14cb0cc2c9b8985df6e81dd333188224e1 #v1.5.0
       with:
@@ -29,6 +26,9 @@ jobs:
         name: Playwright Tests
         path: '*.xml'
         reporter: java-junit
+    - name: Expand archive
+      run: ${{ env.RESULTS_FILE }}
+      shell: pwsh
     - name: Send report to Zephyr
       if: contains(github.ref, 'main')
       run: |
@@ -37,5 +37,5 @@ jobs:
             taskName = '${{ env.TASK_NAME }}'
             folderName = '${{ env.FOLDER_NAME }}'
         }
-        .\send-test-results.ps1 -PersonalAccessToken ${{ env.JIRA_ACCESS_TOKEN }} -ProjectId ${{ env.PROJECT_ID }} -AdminAppVersion '${{ env.ADMIN_APP_VERSION }}' -ResultsFilePath '${{ env.RESULTS_FILE }}' -ConfigParams $parameters
+        .\send-test-results.ps1 -PersonalAccessToken ${{ env.JIRA_ACCESS_TOKEN }} -ProjectId ${{ env.PROJECT_ID }} -AdminAppVersion '${{ env.ADMIN_APP_VERSION }}' -ResultsFilePath '${{ env.RESULTS_FILE }}/${{ env.RESULTS_FILE }}.xml' -ConfigParams $parameters
       shell: pwsh
