@@ -189,6 +189,10 @@ function Compile {
         $project = "$solutionRoot/EdFi.Ods.Admin.Api/"
         $outputPath = "$project/publish"
         dotnet publish $project -c $Configuration /p:EnvironmentName=Production -o $outputPath --no-build --nologo
+
+        $outputPath = "$solutionRoot/EdFi.Ods.Admin.Api/publish"
+        $project = "$solutionRoot/EdFi.Ods.Admin.Api/"
+        dotnet publish $project -c $Configuration /p:EnvironmentName=Production -o $outputPath --no-build --nologo
     }
 }
 
