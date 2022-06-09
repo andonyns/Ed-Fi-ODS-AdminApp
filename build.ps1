@@ -257,15 +257,6 @@ function RunNuGetPack {
         $nuspecPath
     )
 
-    $arguments = @(
-        "pack",  $nugetSpecPath,
-        "-OutputDirectory", "$PSScriptRoot",
-        "-Version", "$PackageVersion",
-        "-Properties", "Configuration=$Configuration",
-        "-NoPackageAnalysis"
-    )
-    # Write-Host "$nugetExe $arguments" -ForegroundColor Magenta
-    # &$script:nugetExe @arguments
     dotnet pack $ProjectPath --output $PSScriptRoot -p:NuspecFile=$nuspecPath -p:NuspecProperties="version=$PackageVersion"
 }
 
@@ -285,20 +276,29 @@ function GetPackageVersion {
 }
 
 function BuildDatabaseScriptPackage{
-    $nugetSpecPath = "$solutionRoot/EdFi.Ods.AdminApp.Web/publish/EdFi.Ods.AdminApp.Database.nuspec"
-    RunNuGetPack -PackageVersion $(GetPackageVersion) $nugetSpecPath
+    $project = "EdFi.Ods.Admin.Web"
+    $mainPath = "$solutionRoot/$project"
+    $projectPath = "$mainPath/$project.csproj"
+    $nugetSpecPath = "$mainPath/publish/EdFi.Ods.AdminApp.Database.nuspec"
+
+    RunNuGetPack -ProjectPath $projectPath -PackageVersion $(GetPackageVersion) $nugetSpecPath
 }
 
 function BuildPackage {
-    $nugetSpecPath = "$solutionRoot/EdFi.Ods.AdminApp.Web/publish/EdFi.Ods.AdminApp.Web.nuspec"
-    RunNuGetPack -PackageVersion $(GetPackageVersion) $nugetSpecPath
+    $project = "EdFi.Ods.AdminApp.Web"
+    $mainPath = "$solutionRoot/$project"
+    $projectPath = "$mainPath/$project.csproj"
+    $nugetSpecPath = "$mainPath/publish/$project.nuspec"
+
+    RunNuGetPack -ProjectPath $projectPath -PackageVersion $(GetPackageVersion) $nugetSpecPath
 }
 
 function BuildApiPackage {
+    $project = "EdFi.Ods.Admin.Api"
+    $mainPath = "$solutionRoot/$project"
+    $projectPath = "$mainPath/$project.csproj"
+    $nugetSpecPath = "$mainPath/publish/$project.nuspec"
 
-    $project = "$solutionRoot/EdFi.Ods.Admin.Api"
-    $projectPath = "$project/EdFi.Ods.Admin.Api.csproj"
-    $nugetSpecPath = "$project/publish/EdFi.Ods.Admin.Api.nuspec"
     RunNuGetPack -ProjectPath $projectPath -PackageVersion $(GetPackageVersion) $nugetSpecPath
 }
 

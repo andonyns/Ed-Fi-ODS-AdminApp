@@ -32,19 +32,16 @@ jobs:
     - name: Build
       run: ./build.ps1 -Command Build -Configuration Release -Version ${{ env.BUILD_VERSION }} -BuildCounter ${{ github.run_number }}
       shell: pwsh
-    # - name: Populate Google Analytics ID
-    #   run: .\build.ps1 -Command PopulateGoogleAnalyticsAppSettings -GoogleAnalyticsMeasurementId ${{env.GA_MEASUREMENT_ID}}
-    #   shell: pwsh
-    # - name: Unit Tests
-    #   run: ./build.ps1 -Command UnitTest -Configuration Release
-    #   shell: pwsh
+    - name: Populate Google Analytics ID
+      run: .\build.ps1 -Command PopulateGoogleAnalyticsAppSettings -GoogleAnalyticsMeasurementId ${{env.GA_MEASUREMENT_ID}}
+      shell: pwsh
+    - name: Unit Tests
+      run: ./build.ps1 -Command UnitTest -Configuration Release
+      shell: pwsh
     - name: Pack
       if: success()
       run: ./build.ps1 -Command PackageApi -Configuration Release -Version ${{ env.BUILD_VERSION }} -BuildCounter ${{ github.run_number }}
       shell: pwsh
-    - name: List
-      run: ls
-    #   working-directory: ./Application
     - name: Upload Package
       if: success()
       uses: actions/upload-artifact@6673cd052c4cd6fcf4b4e6e60ea986c889389535 # v3.0.0
