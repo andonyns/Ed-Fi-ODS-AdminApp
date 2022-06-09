@@ -248,6 +248,9 @@ function IntegrationTests {
 function RunNuGetPack {
     param (
         [string]
+        $ProjectPath,
+
+        [string]
         $PackageVersion,
 
         [string]
@@ -261,8 +264,9 @@ function RunNuGetPack {
         "-Properties", "Configuration=$Configuration",
         "-NoPackageAnalysis"
     )
-    Write-Host "$nugetExe $arguments" -ForegroundColor Magenta
-    &$script:nugetExe @arguments
+    # Write-Host "$nugetExe $arguments" -ForegroundColor Magenta
+    # &$script:nugetExe @arguments
+    dotnet pack $ProjectPath --output $PSScriptRoot -p:NuspecFile=$nuspecPath -p:NuspecProperties="version=$PackageVersion"
 }
 
 function NewDevCertificate {
@@ -291,8 +295,11 @@ function BuildPackage {
 }
 
 function BuildApiPackage {
-    $nugetSpecPath = "$solutionRoot/EdFi.Ods.Admin.Api/publish/EdFi.Ods.Admin.Api.nuspec"
-    RunNuGetPack -PackageVersion $(GetPackageVersion) $nugetSpecPath
+
+    $project = "$solutionRoot/EdFi.Ods.Admin.Api"
+    $projectPath = "$project/EdFi.Ods.Admin.Api.csproj"
+    $nugetSpecPath = "$project/publish/EdFi.Ods.Admin.Api.nuspec"
+    RunNuGetPack -ProjectPath $projectPath -PackageVersion $(GetPackageVersion) $nugetSpecPath
 }
 
 function PushPackage {
