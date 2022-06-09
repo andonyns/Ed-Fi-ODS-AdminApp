@@ -72,7 +72,7 @@
 param(
     # Command to execute, defaults to "Build".
     [string]
-    [ValidateSet("Clean", "Build", "UnitTest", "IntegrationTest", "Package", "Push", "BuildAndTest", "PackageDatabaseScripts", "BuildAndDeployToDockerContainer", "PopulateGoogleAnalyticsAppSettings", "Run")]
+    [ValidateSet("Clean", "Build", "UnitTest", "IntegrationTest", "Package", "PackageApi", "PackageDatabaseScripts", "Push", "BuildAndTest", "BuildAndDeployToDockerContainer", "PopulateGoogleAnalyticsAppSettings", "Run")]
     $Command = "Build",
 
     # Assembly and package version number. The current package number is
@@ -287,6 +287,11 @@ function BuildPackage {
     RunNuGetPack -PackageVersion $(GetPackageVersion) $nugetSpecPath
 }
 
+function BuildApiPackage {
+    $nugetSpecPath = "$solutionRoot/EdFi.Ods.Admin.Api/publish/EdFi.Ods.AdminApp.Api.nuspec"
+    RunNuGetPack -PackageVersion $(GetPackageVersion) $nugetSpecPath
+}
+
 function PushPackage {
     if (-not $NuGetApiKey) {
         throw "Cannot push a NuGet package without providing an API key in the `NuGetApiKey` argument."
@@ -362,6 +367,11 @@ function Invoke-BuildPackage {
     Invoke-Step { BuildPackage }
 }
 
+function Invoke-BuildApiPackage {
+    Invoke-Step { InitializeNuGet }
+    Invoke-Step { BuildApiPackage }
+}
+
 function Invoke-BuildDatabasePackage{
     Invoke-Step { InitializeNuGet }
     Invoke-Step { BuildDatabaseScriptPackage}
@@ -434,6 +444,7 @@ Invoke-Main {
             Invoke-IntegrationTests
         }
         Package { Invoke-BuildPackage }
+        PackageApi { Invoke-BuildApiPackage }
         PackageDatabaseScripts { Invoke-BuildDatabasePackage}
         Push { Invoke-PushPackage }
         BuildAndDeployToDockerContainer {
