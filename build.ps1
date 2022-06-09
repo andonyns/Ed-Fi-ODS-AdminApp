@@ -180,11 +180,14 @@ function AssemblyInfo {
 
 function Compile {
     Invoke-Execute {
-        dotnet --info
         dotnet build $solutionRoot -c $Configuration --nologo --no-restore
 
         $outputPath = "$solutionRoot/EdFi.Ods.AdminApp.Web/publish"
         $project = "$solutionRoot/EdFi.Ods.AdminApp.Web/"
+        dotnet publish $project -c $Configuration /p:EnvironmentName=Production -o $outputPath --no-build --nologo
+
+        $outputPath = "$solutionRoot/EdFi.Ods.Admin.Api/publish"
+        $project = "$solutionRoot/EdFi.Ods.Admin.Api/"
         dotnet publish $project -c $Configuration /p:EnvironmentName=Production -o $outputPath --no-build --nologo
     }
 }
@@ -288,7 +291,7 @@ function BuildPackage {
 }
 
 function BuildApiPackage {
-    $nugetSpecPath = "$solutionRoot/EdFi.Ods.Admin.Api/publish/EdFi.Ods.AdminApp.Api.nuspec"
+    $nugetSpecPath = "$solutionRoot/EdFi.Ods.Admin.Api/publish/EdFi.Ods.Admin.Api.nuspec"
     RunNuGetPack -PackageVersion $(GetPackageVersion) $nugetSpecPath
 }
 
@@ -374,7 +377,7 @@ function Invoke-BuildApiPackage {
 
 function Invoke-BuildDatabasePackage{
     Invoke-Step { InitializeNuGet }
-    Invoke-Step { BuildDatabaseScriptPackage}
+    Invoke-Step { BuildDatabaseScriptPackage }
 }
 
 function Invoke-PushPackage {
@@ -445,7 +448,7 @@ Invoke-Main {
         }
         Package { Invoke-BuildPackage }
         PackageApi { Invoke-BuildApiPackage }
-        PackageDatabaseScripts { Invoke-BuildDatabasePackage}
+        PackageDatabaseScripts { Invoke-BuildDatabasePackage }
         Push { Invoke-PushPackage }
         BuildAndDeployToDockerContainer {
             Invoke-Build
