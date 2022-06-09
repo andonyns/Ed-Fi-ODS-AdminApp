@@ -42,13 +42,13 @@ jobs:
       if: success()
       run: ./build.ps1 -Command PackageApi -Configuration Release -Version ${{ env.BUILD_VERSION }} -BuildCounter ${{ github.run_number }}
       shell: pwsh
-    # - name: List
-    #   run: ls
+    - name: List
+      run: ls
     #   working-directory: ./Application
     - name: Upload Package
       if: success()
       uses: actions/upload-artifact@6673cd052c4cd6fcf4b4e6e60ea986c889389535 # v3.0.0
       with:
-        name: AdminApp.Api
-        path: ./EdFi.Suite3.ODS.Admin.Api.*.nuget
+        #name: AdminApp.Api
+        path: ./*.nuget
 
