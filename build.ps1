@@ -283,7 +283,7 @@ function RunNuGetPack {
         $nuspecPath
     )
 
-    dotnet pack $ProjectPath --output $PSScriptRoot -p:NuspecFile=$nuspecPath -p:NuspecProperties="version=$PackageVersion" --no-build
+    dotnet pack $ProjectPath --output $PSScriptRoot -p:NuspecFile=$nuspecPath -p:NuspecProperties="version=$PackageVersion"
 }
 
 function NewDevCertificate {
