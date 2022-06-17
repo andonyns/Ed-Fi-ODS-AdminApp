@@ -13,6 +13,15 @@ on:
   pull_request:
   workflow_dispatch:
 
+env:
+  JIRA_ACCESS_TOKEN: ${{ secrets.JIRA_ACCESS_TOKEN }}
+  ADMIN_APP_VERSION: '2.4.0'
+  PROJECT_ID: '11900'
+  CYCLE_NAME: 'Automation Cycle'
+  TASK_NAME: 'Playwright Automation Task'
+  FOLDER_NAME: 'Playwright Automation Run'
+  RESULTS_FILE: 'playwright-results'
+
 jobs:
   run-e2e-tests:
 
@@ -64,7 +73,7 @@ jobs:
     - name: Upload results
       uses: actions/upload-artifact@6673cd052c4cd6fcf4b4e6e60ea986c889389535 # v3.0.0
       with:
-        name: playwright-results
+        name: ${{ env.RESULTS_FILE }}
         path: main/Application/EdFi.Ods.AdminApp.E2E.Tests/reports/playwright-results.xml
     - name: Upload execution traces
       if: failure()
@@ -77,3 +86,34 @@ jobs:
       run: ./shared-instance-env-clean.ps1
       shell: pwsh
       working-directory: ods-docker
+
+  reports:
+    needs: run-e2e-tests
+
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+    - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # v3.0.2
+    - name: Generate report
+      uses: dorny/test-reporter@0d00bb14cb0cc2c9b8985df6e81dd333188224e1 #v1.5.0
+      with:
+        artifact: ${{ env.RESULTS_FILE }}
+        name: Playwright Tests
+        path: '*.xml'
+        reporter: java-junit
+    - name: Extract Artifact
+      run: Expand-Archive "${{ env.RESULTS_FILE }}.zip"
+    - name: Send report to Zephyr
+      if: ${{ github.ref == 'refs/heads/main' }}
+      run: |
+        $parameters = @{
+            cycleName = '${{ env.CYCLE_NAME }}'
+            taskName = '${{ env.TASK_NAME }}'
+            folderName = '${{ env.FOLDER_NAME }}'
+        }
+        .\eng\send-test-results.ps1 -PersonalAccessToken ${{ env.JIRA_ACCESS_TOKEN }} -ProjectId ${{ env.PROJECT_ID }} -AdminAppVersion '${{ env.ADMIN_APP_VERSION }}' -ResultsFilePath '${{ env.RESULTS_FILE }}/${{ env.RESULTS_FILE }}.xml' -ConfigParams $parameters
+
+
