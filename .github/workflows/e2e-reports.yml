@@ -35,9 +35,13 @@ jobs:
     # - name: Extract Artifact
     #   run: Expand-Archive "${{ env.RESULTS_FILE }}.zip"
     #   shell: pwsh
+    - name: Checking branch name
+      if: github.ref == 'refs/heads/main'
+      run: |
+        Write-Host "Sending test results for branch ${{github.ref}}"
+      shell: pwsh
     - name: Send report to Zephyr
       if: github.ref != 'refs/heads/main'
       run: |
         Write-Host "Sending test results for branch ${{github.ref}}"
-        Write-Host "Other ref ${{env.GITHUB_REF}}"
       shell: pwsh
