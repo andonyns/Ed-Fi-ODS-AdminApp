@@ -40,9 +40,8 @@ jobs:
     - name: Extract Artifact
       run: Expand-Archive "${{ env.RESULTS_FILE }}.zip"
     - name: Send report to Zephyr
-      if: github.ref == 'refs/heads/main' &&  != 'pull_request'
+      if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
       run: |
-        Write-Host "Sending test results for branch ${{github.ref}} for event ${{github.event_name}}"
         $parameters = @{
             cycleName = '${{ env.CYCLE_NAME }}'
             taskName = '${{ env.TASK_NAME }}'
