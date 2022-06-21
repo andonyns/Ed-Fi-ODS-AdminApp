@@ -29,6 +29,7 @@ jobs:
     - name: Copy files to Docker repo
       run: |
         Write-Host "From fork: Attempting to send test results for branch ${{github.ref}} for event ${{github.event_name}}"
+      shell: pwsh
     # - uses: nuget/setup-nuget@04b0c2b8d1b97922f67eca497d7cf0bf17b8ffe1 #v1.0.5
     # - name: Update Admin App Docker package versions
     #   run: |
