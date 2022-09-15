@@ -84,7 +84,6 @@ jobs:
     needs: pack
     permissions:
       actions: read
-      id-token: write
       contents: write
     outputs:
       sbom-hash: ${{ steps.sbom-hash.outputs.sbom-hash }}
