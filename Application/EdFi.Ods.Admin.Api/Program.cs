@@ -35,7 +35,7 @@ else
 
 AdminApiVersions.Initialize(app);
 
-//The ordering here is meaningful: Routing -> Auth -> Endpoints
+// The ordering here is meaningful: Routing -> Auth -> Endpoints
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
