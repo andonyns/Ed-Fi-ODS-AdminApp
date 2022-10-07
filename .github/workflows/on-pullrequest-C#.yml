@@ -3,18 +3,21 @@
 # The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 # See the LICENSE and NOTICES files in the project root for more information.
 
-name: On Pull Request
+name: On Pull Request - C#
 
 on:
   pull_request:
     branches:
       - main
     paths:
-      # TODO: restore this with AA-1601
+      # TODO: restore this with AA-1601, except run in a PS-specific
+      # workflow, so that the C# build and CodeQL do not run
+      # unnecessarily.
       # - "**/*.ps1"
       # - "**/*.psm1"
       - "**/*.cs"
       - "**/*.csproj"
+      - ".github/**/*.yml"
   workflow_dispatch:
 
 jobs:
@@ -22,6 +25,11 @@ jobs:
   # run-ps-lint:
   #   name: PowerShell Linter
   #   uses: Ed-Fi-Alliance-OSS/Ed-Fi-Actions/.github/workflows/powershell-analyzer.yml@main
+  scan-actions-bidi:
+    name: Scan Actions, scan all files for BIDI Trojan Attacks
+    uses: ed-fi-alliance-oss/ed-fi-actions/.github/workflows/repository-scanner.yml@main
+    with:
+      config-file-path: ./.github/workflows/bidi-scanner/config.json
 
   run-cs-tests:
     name: Run C# Tests
@@ -51,3 +59,16 @@ jobs:
           name: csharp-tests
           path: TestResults/unit-tests.trx
           retention-days: 5
+
+      - name: Dependency Review ("Dependabot on PR")
+        uses: actions/dependency-review-action@a9c83d3af6b9031e20feba03b904645bb23d1dab # v1.0.2
+
+      - name: Initialize CodeQL
+        if: success()
+        uses: github/codeql-action/init@1fae5bf71b0ecdc7d0a2ef0d0c28409d99693966 # v2.9.2
+        with:
+          languages: csharp
+
+      - name: Perform CodeQL Analysis
+        if: success()
+        uses: github/codeql-action/analyze@1fae5bf71b0ecdc7d0a2ef0d0c28409d99693966 # v2.9.2
