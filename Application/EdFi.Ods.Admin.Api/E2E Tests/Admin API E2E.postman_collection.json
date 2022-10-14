@@ -111,6 +111,7 @@
 											"});\r",
 											"\r",
 											"const response = pm.response.json();\r",
+											"console.log(response);\r",
 											"const results = pm.response.json().result;\r",
 											"\r",
 											"pm.test(\"Response matches success format\", function () {\r",
