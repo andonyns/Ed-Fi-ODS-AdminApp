@@ -15,6 +15,9 @@ using VendorApplication = EdFi.Admin.DataAccess.Models.Application;
 using EdFi.Ods.AdminApp.Web.Models.ViewModels.ClaimSets;
 using EdFi.Security.DataAccess.Contexts;
 using static EdFi.Ods.AdminApp.Management.Tests.Testing;
+using EdFi.Admin.DataAccess.Contexts;
+using EdFi.Ods.AdminApp.Management.ErrorHandling;
+using VendorApplication = EdFi.Admin.DataAccess.Models.Application;
 
 namespace EdFi.Ods.AdminApp.Management.Tests.ClaimSetEditor
 {
@@ -35,7 +38,7 @@ namespace EdFi.Ods.AdminApp.Management.Tests.ClaimSetEditor
 
             var editModel = new EditClaimSetModel {ClaimSetName = "TestClaimSetEdited", ClaimSetId = alreadyExistingClaimSet.ClaimSetId};
 
-            Scoped<IUsersContext>(usersContext =>
+            Scoped<IUsersContext>((usersContext) =>
             {
                 var command = new EditClaimSetCommand(TestContext, usersContext);
                 command.Execute(editModel);
@@ -43,6 +46,29 @@ namespace EdFi.Ods.AdminApp.Management.Tests.ClaimSetEditor
 
             var editedClaimSet = Transaction(securityContext => securityContext.ClaimSets.Single(x => x.ClaimSetId == alreadyExistingClaimSet.ClaimSetId));
             editedClaimSet.ClaimSetName.ShouldBe(editModel.ClaimSetName);
+        }
+
+        [Test]
+        public void ShouldThrowExceptionOnEditSystemReservedClaimSet()
+        {
+            var testApplication = new Application
+            {
+                ApplicationName = $"Test Application {DateTime.Now:O}"
+            };
+            Save(testApplication);
+
+            var systemReservedClaimSet = new ClaimSet { ClaimSetName = "Ed-Fi Sandbox", Application = testApplication };
+            Save(systemReservedClaimSet);
+
+            var editModel = new EditClaimSetModel { ClaimSetName = "TestClaimSetEdited", ClaimSetId = systemReservedClaimSet.ClaimSetId };
+
+            var exception = Assert.Throws<AdminAppException>(() => Scoped<IUsersContext>(usersContext =>
+            {
+                var command = new EditClaimSetCommand(TestContext, usersContext);
+                command.Execute(editModel);
+            }));
+            exception.ShouldNotBeNull();
+            exception.Message.ShouldBe($"Claim set ({systemReservedClaimSet.ClaimSetName}) is system reserved.May not be modified.");
         }
 
         [Test]
@@ -72,12 +98,12 @@ namespace EdFi.Ods.AdminApp.Management.Tests.ClaimSetEditor
 
             var editedClaimSet = Transaction(securityContext => securityContext.ClaimSets.Single(x => x.ClaimSetId == claimSetToBeEdited.ClaimSetId));
             editedClaimSet.ClaimSetName.ShouldBe(editModel.ClaimSetName);
-            AssertVendorApplicationsForClaimSet(claimSetToBeEdited.ClaimSetId, editModel.ClaimSetName);
+            AssertApplicationsForClaimSet(claimSetToBeEdited.ClaimSetId, editModel.ClaimSetName);
 
 
             var unEditedClaimSet = Transaction(securityContext => securityContext.ClaimSets.Single(x => x.ClaimSetId == claimSetNotToBeEdited.ClaimSetId));
             unEditedClaimSet.ClaimSetName.ShouldBe(claimSetNotToBeEdited.ClaimSetName);
-            AssertVendorApplicationsForClaimSet(claimSetNotToBeEdited.ClaimSetId, claimSetNotToBeEdited.ClaimSetName);
+            AssertApplicationsForClaimSet(claimSetNotToBeEdited.ClaimSetId, claimSetNotToBeEdited.ClaimSetName);
         }
 
         private void SetupVendorApplicationsForClaimSet(ClaimSet testClaimSet, int applicationCount = 5)
@@ -97,7 +123,7 @@ namespace EdFi.Ods.AdminApp.Management.Tests.ClaimSetEditor
             });
         }
 
-        private void AssertVendorApplicationsForClaimSet(int claimSetId, string claimSetNameToAssert)
+        private void AssertApplicationsForClaimSet(int claimSetId, string claimSetNameToAssert)
         {
             var results = Scoped<IGetApplicationsByClaimSetIdQuery, Management.ClaimSetEditor.Application[]>(
                 query => query.Execute(claimSetId).ToArray());
@@ -105,10 +131,8 @@ namespace EdFi.Ods.AdminApp.Management.Tests.ClaimSetEditor
             Scoped<IUsersContext>(
                 usersContext =>
                 {
-                    var testApplications =
-                        usersContext.Applications.Where(x => x.ClaimSetName == claimSetNameToAssert).ToArray();
-
-                    results.Length.ShouldBe(testApplications.Length);
+                    var testApplications = usersContext.Applications.Where(x => x.ClaimSetName == claimSetNameToAssert).ToList();
+                    results.Length.ShouldBe(testApplications.Count());
                     results.Select(x => x.Name).ShouldBe(testApplications.Select(x => x.ApplicationName), true);
                 });
         }
